@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const { uuid } = require("uuidv4");
 
 // const { v4: uuid } = require('uuid');
 
@@ -11,23 +12,76 @@ app.use(cors());
 const repositories = [];
 
 app.get("/repositories", (request, response) => {
-  // TODO
+  return response.json(repositories);
 });
 
 app.post("/repositories", (request, response) => {
-  // TODO
+  const { title, url, techs } = request.body;
+
+  const repository = {
+    id: uuid(),
+    title: title,
+    url: url,
+    techs: techs,
+    likes: 0
+  }
+
+  repositories.push(repository);
+
+  return response.status(200).json(repository);
 });
 
 app.put("/repositories/:id", (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  const repositoryIndex = repositories.findIndex((repository) => repository.id === id);
+
+  if(repositoryIndex < 0){
+    return response.status(400).json("Repository not found");
+  }
+
+  const { title, url, techs } = request.body;
+
+  const repository = {
+    id: id,
+    title: title,
+    url: url,
+    techs: techs,
+    likes: repositories[repositoryIndex].likes
+  }
+
+  repositories[repositoryIndex] = repository;
+
+  return response.status(200).json(repository);
+
 });
 
 app.delete("/repositories/:id", (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  const repositoryIndex = repositories.findIndex((repository) => repository.id === id);
+
+  if(repositoryIndex < 0){
+    return response.status(400).json("Repository not found");
+  }
+
+  repositories.splice(repositoryIndex, 1);
+
+  return response.status(204).json();
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  const repositoryIndex = repositories.findIndex((repository) => repository.id === id);
+
+  if(repositoryIndex < 0){
+    return response.status(400).json("Repository not found");
+  }
+
+  repositories[repositoryIndex].likes++;
+
+  return response.status(200).json(repositories[repositoryIndex]);
 });
 
 module.exports = app;
